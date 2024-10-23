@@ -1,0 +1,156 @@
+{% extends "chatter/layout.html" %}
+
+{% load static %}
+
+{% block body %}
+
+
+
+<div class = "profile_heading">
+    {% if profile_pic.image %}
+        <img src = "/{{profile_pic.image}}" alt = "profilepic" class = "profile_pic"/>
+    {% else %}
+        <img src = "/chatter/static/chatter/profile_picture/default.jpg" alt = "default_profilepic" class = "profile_pic"/>
+    {% endif %}
+    <br>
+    <br>
+    <h2>{{profile.username}}</h2>
+    <p>{{profile.bio}}</p>
+    <br>
+    {% if user.username == profile.username %}
+        <form method = "post" action = "{% url 'update_bio' user.username %}">
+            {% csrf_token %}
+            <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Bio</label>
+                <div class="col-sm-6">
+                  <input type="text" class="form-control" name = "bio" id="inputEmail3" placeholder="Enter bio">
+                </div>
+                <div class="col-sm-2">
+                    <button type="submit" class="btn btn-primary">Confirm</button>
+                </div>
+            </div>
+
+        </form>
+
+        <form method = "post" enctype = "multipart/form-data">
+            <div class="form-group row">
+                {% csrf_token %}
+                <div class = "col-sm-3">
+                    <label class="form-label">Upload Profile Picture</label>
+
+                </div>
+                <div class = "col-sm-6">
+                    {{form.as_p}}
+                </div>
+                <div class="col-sm-2">
+                    <button type="submit" class="btn btn-primary">Confirm</button>
+                </div>
+            </div>
+        </form>
+    {% else %}
+        {% if friends %}
+
+            <form method = "post" action = "{% url 'unfriend_request' profile.username %}">
+                {% csrf_token %}
+
+                <button type = "submit" class="btn btn-secondary" name = "user" value = "{{profile.username}}"> Unfriend </button>
+
+
+            </form>
+
+
+        {% else %}
+            <form method = "post" action = "{% url 'friend_request' profile.username %}">
+                {% csrf_token %}
+
+
+                    <button type = "submit" class="btn btn-primary" name = "user" value = "{{profile.username}}"> Send friend request </button>
+
+            </form>
+
+            
+        {% endif %}
+        <br>
+
+        {% if direct %}
+            <a href = "{% url 'direct' direct.id %}"> Go to DMs </a>
+
+        {% endif %}
+    {% endif %}
+
+</div>
+
+<br>
+<br>
+{% if user.username == profile.username %}
+<h6> Incoming friend requests: </h6>
+<br>
+<table>
+    {% for pending in pending_request %}
+    <tr>
+        <td>
+            <form method = "post" action = "{% url 'friend_request' user.username %}">
+                {% csrf_token %}
+                <label> {{pending.follower}} </label> &nbsp &nbsp &nbsp
+                <button type = "submit" class="btn btn-primary" name = "user" value = "{{pending.follower}}"> Accept friend request </button>
+            </form>
+            
+    
+        </td>
+        <td>
+            <form method = "post" action = "{% url 'unfriend_request' user.username %}">
+                {% csrf_token %}
+                <button type = "submit" class="btn btn-primary" name = "user" value = "{{pending.follower}}"> Reject friend request </button>
+            </form>
+    
+        </td>
+    
+
+    </tr>
+        
+    {% endfor %}    
+    
+</table>
+
+<br>
+
+<h6> Incoming group invites: </h6>
+<br>
+<table>
+    {% for group in groups %}
+    <tr> 
+        <td>
+            <form method = "post" action = "{% url 'group_join' group.group.id %}">
+                {% csrf_token %}
+                <label> {{group.group.group_name}} - {{group.group.description}}  </label> &nbsp &nbsp &nbsp
+                <button type = "submit" class="btn btn-primary" name = "invite" value = "{{group.group.id}}"> Accept group invite</button>
+            </form>
+
+
+        </td>
+        <td>
+            <form method = "post" action = "{% url 'reject_group' user.username %}">
+                {% csrf_token %}
+                <button type = "submit" class="btn btn-primary" name = "group" value = "{{group.group.id}}"> Reject group invite </button>
+            </form>
+
+        </td>
+
+    </tr>
+    {% endfor %}
+
+</table>
+
+
+{% endif %}
+
+<br>
+<br>
+
+
+
+
+
+
+
+{% endblock %}

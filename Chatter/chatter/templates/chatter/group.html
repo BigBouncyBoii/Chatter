@@ -1,0 +1,233 @@
+{% extends "chatter/layout.html" %}
+
+{% load static %}
+
+
+{% block body %}
+
+<div class = "heading">
+    <h2> {{group.group_name}} </h2>
+    <h6> {{group.description}}</h6>
+    <h6> Created by: {{group.owner}}</h6>
+    <h6> Category: {{group.category}}</h6>
+    <h6> Members: {% for member in members %} {{member}}, {% endfor %}</h6>
+    <p> Invite members </p>
+    <form method = "post" action = "{% url 'group_invite' group.id %}">
+        {% csrf_token %}
+        <datalist id="suggestions">
+            {% for i in invite %}
+                    <option>{{i.username}}</option>
+            {% endfor %}
+        </datalist>
+        <input  autoComplete="on" list="suggestions" name = "invite"/> 
+        <button class="btn btn-primary" type = "sbumit"> Invite member </button>
+        {% if message %}
+            {{message}}
+        {% endif %}
+    </form>
+    <hr>
+
+</div>
+
+<div class = "mx-5" id = "messages" data-user = "{{user.username}}">
+
+
+</div>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+
+<div class = "mx-5 my-5 fixed-bottom">
+    <form method="post" id = "message" data-id = "{{group.id}}">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-10">
+                <textarea autofocus class="form-control" id = "content" height = "5%" placeholder="Send a message..."></textarea>
+            </div>
+            &nbsp
+            &nbsp
+            <div class="col-md-0">
+            <button class="btn btn-warning" type = "submit"> <i class="fa-solid fa-message" style="color: #FFFFFF;"></i> </button>
+            </div>
+            &nbsp
+            &nbsp
+        
+            
+        </div>
+    </form>
+</div>
+
+<script>
+
+    function add_message(message, message_old){
+        const messages = document.querySelector("#messages");
+        new_messages = "";
+        for(let i = 0; i < message.length; i++){
+            if(message[i].messager == messages.dataset.user){
+                if(message[i].reply){
+                    new_messages = new_messages.concat(`<div class = "row"><div class = "col-7"></div><div class="card texts" data-id="${message[i].id}"style="width: 33rem;"><div class = "card-header user_text">${message[i].reply}</div><div class="card-body" id ="user_text"><a href = "/profile/${message[i].messager}" class="card-title username_text" id = "user${message[i].id}">${message[i].messager}</a><br><br><h6 class="card-subtitle mb-2 text-muted">${message[i].date}</h6><p class="card-text" id = "reply_content${message[i].id}">${message[i].content}</p><i class="fa-solid fa-heart like like_color"  data-id = "${message[i].id}" data-likes = "${message[i].likes}"></i>&nbsp${message[i].likes}<br><button type="button" class="btn btn-link reply" data-id = "${message[i].id}"> Reply </button><div id = "reply_area${message[i].id}" class = "reply_area"><form id = "reply_form" data-id = "${message[i].id}"><input class="form-control" type = "text" id = "content${message[i].id}" placeholder = "Enter reply"><button class="btn btn-warning" type = "submit"> <i class="fa-solid fa-message" style="color: #FFFFFF;"></i> </button></form></div></div></div></div><br>`);
+
+                } 
+                else{
+                    new_messages = new_messages.concat(`<div class = "row"><div class = "col-7"></div><div class="card texts" data-id="${message[i].id}"style="width: 33rem;"><div class="card-body" id ="user_text"><a href = "/profile/${message[i].messager}" class="card-title username_text" id = "user${message[i].id}">${message[i].messager}</a><br><br><h6 class="card-subtitle mb-2 text-muted">${message[i].date}</h6><p class="card-text" id = "reply_content${message[i].id}">${message[i].content}</p><i class="fa-solid fa-heart like like_color"  data-id = "${message[i].id}" data-likes = "${message[i].likes}"></i>&nbsp${message[i].likes}<br><button type="button" class="btn btn-link reply" data-id = "${message[i].id}"> Reply </button><div id = "reply_area${message[i].id}" class = "reply_area"><form id = "reply_form" data-id = "${message[i].id}"><input class="form-control" type = "text" id = "content${message[i].id}" placeholder = "Enter reply"><button class="btn btn-warning" type = "submit"> <i class="fa-solid fa-message" style="color: #FFFFFF;"></i> </button></form></div></div></div></div><br>`);
+                }
+                
+            }
+            else{
+                if(message[i].reply){
+                    new_messages = new_messages.concat(`<div class = "row"><div class="card texts" data-id="${message[i].id}"style="width: 33rem;"><div class = "card-header text">${message[i].reply}</div><div class="card-body" id="text"><a href = "/profile/${message[i].messager}" class="card-title username_text" id = "user${message[i].id}">${message[i].messager}</a><br><br><h6 class="card-subtitle mb-2 text-muted">${message[i].date}</h6><p class="card-text" id = "reply_content${message[i].id}">${message[i].content}</p><i class="fa-solid fa-heart like like_color" data-id = "${message[i].id}" data-likes = "${message[i].likes}"></i>&nbsp${message[i].likes}<br><button type="button" class="btn btn-link reply" data-id = "${message[i].id}"> Reply </button><div id = "reply_area${message[i].id}" class = "reply_area" ><form id = "reply_form" data-id = "${message[i].id}"><input class="form-control" type = "text" id = "content${message[i].id}"  placeholder = "Enter reply"><button class="btn btn-warning" type = "submit"> <i class="fa-solid fa-message" style="color: #FFFFFF;"></i> </button></form></div></div></div></div><br>`);
+
+                } 
+                else{
+                    new_messages = new_messages.concat(`<div class = "row"><div class="card texts" data-id="${message[i].id}"style="width: 33rem;"><div class="card-body" id="text"><a href = "/profile/${message[i].messager}" class="card-title username_text" id = "user${message[i].id}">${message[i].messager}</a><br><br><h6 class="card-subtitle mb-2 text-muted">${message[i].date}</h6><p class="card-text" id = "reply_content${message[i].id}">${message[i].content}</p><i class="fa-solid fa-heart like like_color" data-id = "${message[i].id}" data-likes = "${message[i].likes}"></i>&nbsp${message[i].likes}<br><button type="button" class="btn btn-link reply" data-id = "${message[i].id}"> Reply </button><div id = "reply_area${message[i].id}" class = "reply_area" ><form id = "reply_form" data-id = "${message[i].id}"><input class="form-control" type = "text" id = "content${message[i].id}"  placeholder = "Enter reply"><button class="btn btn-warning" type = "submit"> <i class="fa-solid fa-message" style="color: #FFFFFF;"></i> </button></form></div></div></div></div><br>`);
+
+                }
+               
+            }
+            
+        }
+        messages.innerHTML = new_messages;  
+
+    }
+
+
+
+    function request_message_group(){
+        const messages = document.querySelector("#messages");
+        const message = document.querySelector("#message")
+        const message_old = document.querySelectorAll(".texts");
+        const like = document.querySelectorAll(".like");
+        const reply = document.querySelectorAll(".reply");
+        let check = false;
+        let new_messages = "";
+        fetch(`/get_group_message/${message.dataset.id}/${num}`)
+        .then(response => response.json())
+        .then(message => {
+            if(message.length > message_old.length){
+                add_message(message, message_old);    
+            } else{
+                for(let i = 0; i < message.length; i++){
+                    if(message[i].id != message_old[i].dataset.id){
+                        check = true;
+                        
+                    }
+                    if(message[i].likes != like[i].dataset.likes){
+                        check=true;
+                    }
+
+                }
+                if(check == true){
+                    add_message(message, message_old);
+                }
+
+            }
+        })
+        like.forEach((like)=>{
+            like.onclick = ()=>{
+                fetch(`/like_group/${like.dataset.id}`, {
+                    method: "PUT",
+                })
+                request_message_group()
+
+                
+
+            }
+        })
+        reply.forEach((reply) => {
+            reply.onclick = ()=>{
+                reply_area = document.querySelector(`#reply_area${reply.dataset.id}`);
+                if(reply_area.classList.contains("reply_area")){
+                    reply_area.classList.remove("reply_area");
+                    reply_area.classList.add("reply_area_show");
+                } else{
+                    reply_area.classList.remove("reply_area_show");
+                    reply_area.classList.add("reply_area");
+
+                }
+            }
+        })
+        const reply_form = document.querySelectorAll("#reply_form");
+        reply_form.forEach((reply_form) => {
+            reply_form.onsubmit = (replied)=>{
+                replied.preventDefault();
+                let content_reply = document.querySelector(`#content${reply_form.dataset.id}`).value;
+                let reply_content = document.querySelector(`#reply_content${reply_form.dataset.id}`).innerHTML;
+                let reply_user = document.querySelector(`#user${reply_form.dataset.id}`).innerHTML;
+                let reply_message = `Replying to ${reply_user}: ${reply_content}`;
+
+                fetch(`/reply_group/${message.dataset.id}`, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        content: content_reply,
+                        reply: reply_message,
+
+                    })
+                })
+                document.querySelector(`#content${reply_form.dataset.id}`).value = "";
+
+            }
+        })
+    
+
+    }
+
+
+
+
+    let num = 7;
+
+    document.addEventListener("DOMContentLoaded", ()=>{
+        setTimeout(() => {
+        window.scrollTo(0, document.body.scrollHeight);
+
+        }, 700);
+        setInterval(request_message_group, 500);
+        setTimeout(() => {
+            window.onscroll = ()=>{
+            if(window.scrollY <= 0){
+                setTimeout(()=>{
+                    num+=3
+                    window.scrollTo(0, 200);
+                }, 1000);
+            
+
+            } 
+        }
+
+        }, 3000);
+        const message = document.querySelector("#message");
+        message.onsubmit = (form)=>{
+            form.preventDefault()
+            let content = document.querySelector("#content").value;
+            fetch(`/group_message/${message.dataset.id}`, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        content: content,
+
+                })
+            })
+
+            document.querySelector("#content").value = "";
+        }
+
+
+
+
+    })
+
+
+
+</script>
+
+
+
+
+
+
+
+
+{% endblock %}

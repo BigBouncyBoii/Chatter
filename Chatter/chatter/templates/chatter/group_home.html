@@ -1,0 +1,185 @@
+{% extends "chatter/layout.html" %}
+
+{% load static %}
+
+
+{% block body %}
+
+<h2> Group Chat - Chat in public groups </h2>
+<br>
+<hr>
+<br>
+<button class="btn btn-primary" type = "button" id = "show_form"> Create a group </button>
+<br>
+<form class = "create_group" method = "post">
+    {% csrf_token %}
+    <div class="form-group">
+        <br>
+        <input type="text" class="form-control" placeholder="Group name" name = "name">
+       
+        
+    </div>
+    <div class="form-group">
+        <input type="text" class="form-control" placeholder="Group description" name = "description">
+
+    </div>
+    <div class="form-group">
+        <select class="form-control" id="exampleFormControlSelect1" name = "category">
+          <option> No category </option>
+          <option> Games </option>
+          <option> Movies </option>
+          <option> Sports </option>
+          <option> Science </option>
+          <option> Humanities </option>
+          <option> Food </option>
+          <option> Politics </option>
+          <option> Art </option>
+          <option> Music </option>
+          <option> Technology </option>
+          <option> Business </option>
+        </select>
+    </div>
+    
+    <button class="btn btn-warning" type = "submit"> Create! </button>
+       
+
+
+</form>
+<br>
+<hr>
+
+<h5> Joined groups </h5>
+<table class="table">
+    <thead>
+    <tr>
+        <th scope="col"> Group </th>
+        <th scope="col"> Leave </th>
+    </tr>
+    </thead>
+    <tbody>
+        <div class = "col-auto">
+            {% if user_groups %}
+                {% for group in user_groups %}
+                    <tr>
+                        <td>
+                            {{group.group_name}} &nbsp &nbsp &nbsp &nbsp
+                            {% if group.last_message %}
+                                {{group.last_message.messager}}: {{group.last_message.content}} &nbsp &nbsp &nbsp &nbsp
+                            {% endif %}
+                            
+                            <button type = "submit" class = "btn btn-warning"><a href = "{% url 'group' group.id %}" > <i class="fa-solid fa-user-group"></i> </a></button>
+                            
+                        </td>
+                        <td>
+                            <form method = "post" action = "{% url 'group_join' group.id %}" > {% csrf_token %} <button type = "submit" class = "btn btn-warning" > Leave </button> </form>
+
+                        </td>
+                        
+                    </tr> 
+                {% endfor %}
+            {% else %}
+                    <tr>
+                        <td> You have no groups. Please join a group</td>
+                        <td></td>
+                        
+                    </tr>
+
+            {% endif %}
+
+            </div>
+
+    </tbody>
+</table>
+
+<br>
+<br>
+<hr>
+
+<h5> Groups </h5>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th scope="col"> Group </th>
+        <th scope="col"> Description </th>
+        <th scope="col"> Category </th>
+        <th scope="col"> Created by </th>
+        <th scope="col"> Members </th>
+        <th scope="col"> Join </th>
+
+    </tr>
+    </thead>
+    <tbody>
+        <div class = "col-auto">
+            {% for group in groups %}
+                <tr>
+                    <td>
+                        {{group.group_name}}
+                        
+                    </td>
+                    <td>
+                        {{group.description}}
+
+                    </td>
+                    <td>
+                        {{group.category}}
+
+                    </td>
+                    <td>
+                        {{group.owner}}
+
+                    </td>
+                    <td>
+                        {{group.member_count}}
+
+                    </td>
+                    <td>
+                        <form method = "post" action = "{% url 'group_join' group.id %}" > {% csrf_token %} <button type = "submit" class = "btn btn-warning" > Join </button> </form>
+
+                    </td>
+                        
+                        
+                </tr> 
+                {% endfor %}
+
+            </div>
+
+    </tbody>
+</table>
+
+
+
+
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", ()=>{
+        const form = document.querySelector(".create_group")
+        const button = document.querySelector("#show_form")
+        button.onclick = ()=>{
+            if(form.classList.contains("create_group")){
+                form.classList.add("create_group_show")
+                form.classList.remove("create_group")
+            } else{
+                form.classList.remove("create_group_show")
+                form.classList.add("create_group")
+
+            }
+        }
+        
+
+
+
+
+
+
+    })
+
+</script>
+
+
+
+
+
+
+{% endblock %}

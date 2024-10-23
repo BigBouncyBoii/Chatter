@@ -1,0 +1,72 @@
+{% extends "chatter/layout.html" %}
+
+{% load static %}
+
+
+{% block body %}
+
+<h2> Direct Chat - Personal messages with friends </h2>
+<hr>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th scope="col">Friends</th>
+    </tr>
+    </thead>
+    <tbody>
+        <div class = "col-auto">
+            {% if friends %}
+                {% for friend in friends %}
+                    <tr>
+                        <td>
+                        
+                            {% if friend.image %}
+                                <img src = "/{{friend.image}}" class="small_profile_pic"> 
+                            {% else %}
+                                <img src = "/chatter/static/chatter/profile_picture/default.jpg" class="small_profile_pic"> 
+                            {% endif %}
+                            &nbsp &nbsp &nbsp
+
+                            
+
+
+                        {% if friend.friend_1 == user %}
+                                {{friend.friend_2}}: &nbsp 
+                                {{friend.last_message}}
+
+                                &nbsp &nbsp &nbsp &nbsp &nbsp
+                                <button type = "submit" class = "btn btn-warning"><a href = "{% url 'direct' friend.id %}"> <i class="fa-solid fa-paper-plane"></i> </a></button>
+                        {% else %}
+                                {{friend.friend_1}}: &nbsp
+                                {{friend.last_message}}
+
+                                &nbsp &nbsp &nbsp &nbsp &nbsp
+                                <button type = "submit" class = "btn btn-warning"><a href = "{% url 'direct' friend.id %}"> <i class="fa-solid fa-paper-plane"></i> </a></button>
+                        {% endif %}
+
+                        
+                        
+                        </td>
+                        
+
+                        
+                    </tr> 
+                {% endfor %}
+            {% else %}
+                    <tr>
+                        <td> You have no friends. Please add some friends </td>
+                    </tr>
+
+            {% endif %}
+
+            </div>
+
+    </tbody>
+</table>
+
+
+
+
+
+{% endblock %}
